@@ -10,6 +10,7 @@ public class WildTicTacToe {
     private static int winnerPlayer = 0;
     private static Stack<Integer> player1Moves = new Stack<>();
     private static Stack<Integer> player2Moves = new Stack<>();
+    private static int difficultyLevel = 3;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -25,26 +26,14 @@ public class WildTicTacToe {
         boolean isBotMode = false;
         System.out.print("Do you want to play against a bot? (Y/N): ");
         String botMode = scanner.next();
-        String  difficultyLevel = "";
         if (botMode.equalsIgnoreCase("Y")) {
             player2Name = "Bot";
             isBotMode = true;
             System.out.println(player1Name + " will start as X and " + player2Name + " will start as O.");
 
-
-            do {
-                System.out.print("Select difficulty level (easy/medium/hard): ");
-                difficultyLevel = scanner.next();
-                if (!difficultyLevel.equalsIgnoreCase("easy") &&
-                        !difficultyLevel.equalsIgnoreCase("medium") &&
-                        !difficultyLevel.equalsIgnoreCase("hard")) {
-                    System.out.println("Invalid difficulty level. Please try again.");
-                }
-            } while (!difficultyLevel.equalsIgnoreCase("easy") &&
-                    !difficultyLevel.equalsIgnoreCase("medium") &&
-                    !difficultyLevel.equalsIgnoreCase("hard"));
-
-            System.out.println("You have selected difficulty level: " + difficultyLevel);
+            System.out.print("Select the difficulty level for the bot (1-3): ");
+            difficultyLevel = scanner.nextInt();
+            System.out.println(player1Name + " will start as X and the bot will start as O.");
 
         } else {
             System.out.print("Enter the name of player 2: ");
@@ -56,6 +45,8 @@ public class WildTicTacToe {
         System.out.println("To make a move, enter the row and column numbers where you want to place your X or O.");
         System.out.println("If you get a line of three X's or O's in a row, you win! Good luck!");
         System.out.println("Let's get started, " + player1Name + " and " + player2Name + "!");
+
+
 
         while (!isGameOver) {
             printBoard();
@@ -69,6 +60,11 @@ public class WildTicTacToe {
 
             if (isBotMode && currentPlayer == 2) {
                 System.out.println("Bot is thinking...");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    System.out.println("An error occurred: " + e.getMessage());
+                }
                 makeBotMove(difficultyLevel);
             } else {
                 int row, col;
@@ -83,14 +79,27 @@ public class WildTicTacToe {
                         System.out.println("Invalid mark. Please enter 'X', 'O', or 'U' to undo your last move.");
                         continue;
                     }
-                    System.out.print("Enter the row number (1-3): ");
-                    row = scanner.nextInt() - 1;
-                    System.out.print("Enter the column number (1-3): ");
-                    col = scanner.nextInt() - 1;
-                    if (row < 0 || row > 2 || col < 0 || col > 2) {
-                        System.out.println("Invalid row or column number. Please enter a number between 1 and 3.");
+                    try {
+                        System.out.print("Enter the row number (1-3): ");
+                        row = scanner.nextInt() - 1;
+
+                        System.out.print("Enter the column number (1-3): ");
+                        col = scanner.nextInt() - 1;
+
+                        if (row < 0 || row > 2 || col < 0 || col > 2) {
+                            System.out.println("Invalid row or column number. Please enter a number between 1 and 3.");
+                            continue;
+                        }
+
+                        // Rest of the code for processing the valid row and column values
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid input. Please enter a number between 1 and 3.");
+                        scanner.nextLine(); // Clear the invalid input from the scanner
                         continue;
                     }
+
+
+
                     if (board[row][col] != 0) {
                         System.out.println("Square already taken. Please choose another square.");
                         continue;
@@ -135,7 +144,6 @@ public class WildTicTacToe {
         } else if (isBoardFull()) {
             System.out.println("The game is a draw.");
         }
-
 
         System.out.print("Do " + player1Name + " and " + (isBotMode ? "Bot" : player2Name) + " want to play again? (Y/N): ");
         String playAgain = scanner.next();
@@ -198,8 +206,6 @@ public class WildTicTacToe {
         return false;
     }
 
-
-
     private static void resetGame() {
         board = new int[3][3];
         currentPlayer = 1;
@@ -210,95 +216,327 @@ public class WildTicTacToe {
         player2Moves.clear();
     }
 
-    private static void makeBotMove(String difficultyLevel) {
+
+    private static void makeBotMove(int difficultyLevel) {
+        int currentPlayerMark = new Random().nextInt(2) + 1;
+
+        switch (difficultyLevel) {
+            case 1:
+                makeSmartMove(currentPlayerMark);
+                break;
+            case 2:
+                makeAdvancedMove(currentPlayerMark);
+                break;
+            case 3:
+                makeHardMove(currentPlayerMark);
+                break;
+            default:
+                System.out.println("Invalid difficulty level. Bot will make a random move.");
+                makeRandomMove(currentPlayerMark);
+                break;
+        }
+    }
+
+
+    private static void makeRandomMove(int currentPlayerMark) {
         Random random = new Random();
 
-        // Generate X or O randomly
-        int botMark = random.nextInt(2) + 1;
-        String markSymbol = (botMark == 1) ? "X" : "O";
-        System.out.println("Bot chooses " + markSymbol + ".");
-
-        // Select move based on difficulty level
         int row, col;
-        if (difficultyLevel.equalsIgnoreCase("easy")) {
-            // Easy mode: Randomly pick an empty cell
-            do {
-                row = random.nextInt(3);
-                col = random.nextInt(3);
-            } while (board[row][col] != 0);
-        } else if (difficultyLevel.equalsIgnoreCase("medium")) {
-            // Medium mode: Use Minimax algorithm with depth 3
-            Move bestMove = minimax(3, botMark);
-            row = bestMove.row;
-            col = bestMove.col;
-        } else if (difficultyLevel.equalsIgnoreCase("hard")) {
-            // Hard mode: Use Minimax algorithm with depth 5
-            Move bestMove = minimax(5, botMark);
-            row = bestMove.row;
-            col = bestMove.col;
-        } else {
-            // Invalid difficulty level
-            System.out.println("Invalid difficulty level. Bot will make a random move.");
-            do {
-                row = random.nextInt(3);
-                col = random.nextInt(3);
-            } while (board[row][col] != 0);
-        }
+        do {
+            row = random.nextInt(3);
+            col = random.nextInt(3);
+        } while (board[row][col] != 0);
 
-        // Place the mark in the chosen cell
-        board[row][col] = botMark;
-        System.out.println("Bot placed " + markSymbol + " at row " + (row + 1) + ", column " + (col + 1) + ".");
-
-        // Update the stack with the bot's move
-        player2Moves.push(row * 3 + col);
-
-
+        makeMove(row, col, currentPlayerMark);
     }
 
-    private static Move minimax(int depth, int player) {
-        List<Move> availableMoves = getAvailableMoves();
-
-        // Terminal conditions: check for winner or draw
-        if (checkWinner()) {
-            int score = (currentPlayer == player) ? 1 : -1;
-            return new Move(score);
-        } else if (isBoardFull()) {
-            return new Move(0);
+    private static void makeSmartMove(int currentPlayerMark) {
+        // Look for a winning move
+        if (findWinningMove(currentPlayerMark)) {
+            return;
         }
 
-        List<Move> moves = new ArrayList<>();
-
-        for (Move move : availableMoves) {
-            // Make the move
-            board[move.row][move.col] = player;
-
-            // Recursively call minimax to evaluate the move
-            int score = minimax(depth - 1, 3 - player).score;
-            move.score = score;
-
-            // Undo the move
-            board[move.row][move.col] = 0;
-
-            moves.add(move);
+        // Block the opponent's winning move
+        if (findWinningMove(3 - currentPlayerMark)) {
+            return;
         }
 
-        // Find the best move based on the player's turn
-        return (player == currentPlayer) ? Collections.max(moves) : Collections.min(moves);
+        // Make a random move
+        makeRandomMove(currentPlayerMark);
     }
 
-    private static List<Move> getAvailableMoves() {
-        List<Move> moves = new ArrayList<>();
-
-        for (int i = 0; i < 9; i++) {
-            int row = i / 3;
-            int col = i % 3;
-            if (board[row][col] == 0) {
-                moves.add(new Move(row, col));
+    private static boolean findWinningMove(int player) {
+        // Check rows
+        for (int i = 0; i < 3; i++) {
+            if (board[i][0] == player && board[i][1] == player && board[i][2] == 0) {
+                makeMove(i, 2, player);
+                return true;
+            }
+            if (board[i][0] == player && board[i][2] == player && board[i][1] == 0) {
+                makeMove(i, 1, player);
+                return true;
+            }
+            if (board[i][1] == player && board[i][2] == player && board[i][0] == 0) {
+                makeMove(i, 0, player);
+                return true;
             }
         }
 
-        return moves;
+        // Check columns
+        for (int i = 0; i < 3; i++) {
+            if (board[0][i] == player && board[1][i] == player && board[2][i] == 0) {
+                makeMove(2, i, player);
+                return true;
+            }
+            if (board[0][i] == player && board[2][i] == player && board[1][i] == 0) {
+                makeMove(1, i, player);
+                return true;
+            }
+            if (board[1][i] == player && board[2][i] == player && board[0][i] == 0) {
+                makeMove(0, i, player);
+                return true;
+            }
+        }
+
+        // Check diagonals
+        if (board[0][0] == player && board[1][1] == player && board[2][2] == 0) {
+            makeMove(2, 2, player);
+            return true;
+        }
+        if (board[0][0] == player && board[2][2] == player && board[1][1] == 0) {
+            makeMove(1, 1, player);
+            return true;
+        }
+        if (board[1][1] == player && board[2][2] == player && board[0][0] == 0) {
+            makeMove(0, 0, player);
+            return true;
+        }
+        if (board[0][2] == player && board[1][1] == player && board[2][0] == 0) {
+            makeMove(2, 0, player);
+            return true;
+        }
+        if (board[0][2] == player && board[2][0] == player && board[1][1] == 0) {
+            makeMove(1, 1, player);
+            return true;
+        }
+        if (board[1][1] == player && board[2][0] == player && board[0][2] == 0) {
+            makeMove(0, 2, player);
+            return true;
+        }
+
+        return false;
     }
+
+    private static void makeAdvancedMove(int currentPlayerMark) {
+        int bestScore = Integer.MIN_VALUE;
+        int bestRow = -1;
+        int bestCol = -1;
+
+        // Try every possible move and evaluate the score using the minimax algorithm
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == 0) {
+                    board[i][j] = currentPlayerMark;
+                    int score = minimax(0, false, currentPlayerMark);
+                    board[i][j] = 0;
+
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestRow = i;
+                        bestCol = j;
+                    }
+                }
+            }
+        }
+
+        // Make the best move found
+        makeMove(bestRow, bestCol, currentPlayerMark);
+    }
+
+    private static int minimax(int depth, boolean isMaximizingPlayer, int currentPlayerMark) {
+        int result = evaluateBoard();
+
+        if (result != 0) {
+            return result;
+        }
+
+        int bestScore;
+        if (isMaximizingPlayer) {
+            bestScore = Integer.MIN_VALUE;
+
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (board[i][j] == 0) {
+                        board[i][j] = currentPlayerMark;
+                        int score = minimax(depth + 1, false, currentPlayerMark);
+                        board[i][j] = 0;
+
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+            }
+
+        } else {
+            bestScore = Integer.MAX_VALUE;
+
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (board[i][j] == 0) {
+                        board[i][j] = 3 - currentPlayerMark;
+                        int score = minimax(depth + 1, true, currentPlayerMark);
+                        board[i][j] = 0;
+
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+            }
+
+        }
+        return bestScore;
+    }
+
+    private static final int MAX_DEPTH = 5;
+
+    private static void makeHardMove(int currentPlayerMark) {
+        int bestScore = Integer.MIN_VALUE;
+        int bestRow = -1;
+        int bestCol = -1;
+
+        // Try every possible move and evaluate the score using the minimax algorithm with alpha-beta pruning
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == 0) {
+                    board[i][j] = currentPlayerMark;
+                    int score = alphaBetaPruning(0, Integer.MIN_VALUE, Integer.MAX_VALUE, false, currentPlayerMark);
+                    board[i][j] = 0;
+
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestRow = i;
+                        bestCol = j;
+                    }
+                }
+            }
+        }
+
+        // Make the best move found
+        makeMove(bestRow, bestCol, currentPlayerMark);
+    }
+
+
+    private static int alphaBetaPruning(int depth, int alpha, int beta, boolean isMaximizingPlayer, int currentPlayerMark) {
+        int result = evaluateBoard();
+
+        if (result != 0) {
+            return result * depth; // Scale the score by the depth to encourage faster wins and slower losses
+        }
+
+        if (depth >= MAX_DEPTH) {
+            return 0; // Limit the search depth to avoid excessive computation
+        }
+
+        if (isMaximizingPlayer) {
+            int maxScore = Integer.MIN_VALUE;
+
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (board[i][j] == 0) {
+                        board[i][j] = currentPlayerMark;
+                        int score = alphaBetaPruning(depth + 1, alpha, beta, false, currentPlayerMark);
+                        board[i][j] = 0;
+
+                        maxScore = Math.max(score, maxScore);
+                        alpha = Math.max(alpha, score);
+                        if (beta <= alpha) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return maxScore;
+        } else {
+            int minScore = Integer.MAX_VALUE;
+
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (board[i][j] == 0) {
+                        board[i][j] = 3 - currentPlayerMark;
+                        int score = alphaBetaPruning(depth + 1, alpha, beta, true, currentPlayerMark);
+                        board[i][j] = 0;
+
+                        minScore = Math.min(score, minScore);
+                        beta = Math.min(beta, score);
+                        if (beta <= alpha) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return minScore;
+        }
+    }
+
+
+
+    private static int evaluateBoard() {
+        // Check rows
+        for (int i = 0; i < 3; i++) {
+            if (board[i][0] == board[i][1] && board[i][1] == board[i][2]) {
+                if (board[i][0] == currentPlayer) {
+                    return 10; // Current player has won
+                } else if (board[i][0] == 3 - currentPlayer) {
+                    return -10; // Opponent has won
+                }
+            }
+        }
+
+        // Check columns
+        for (int i = 0; i < 3; i++) {
+            if (board[0][i] == board[1][i] && board[1][i] == board[2][i]) {
+                if (board[0][i] == currentPlayer) {
+                    return 10; // Current player has won
+                } else if (board[0][i] == 3 - currentPlayer) {
+                    return -10; // Opponent has won
+                }
+            }
+        }
+
+        // Check diagonals
+        if (board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
+            if (board[0][0] == currentPlayer) {
+                return 10; // Current player has won
+            } else if (board[0][0] == 3 - currentPlayer) {
+                return -10; // Opponent has won
+            }
+        }
+        if (board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
+            if (board[0][2] == currentPlayer) {
+                return 10; // Current player has won
+            } else if (board[0][2] == 3 - currentPlayer) {
+                return -10; // Opponent has won
+            }
+        }
+
+        return 0; // Game is a draw or not yet finished
+    }
+
+    private static void makeMove(int row, int col, int currentPlayerMark) {
+        // Set the current player's mark on the board
+        board[row][col] = currentPlayerMark;
+
+        if (currentPlayerMark == 1) {
+            player1Moves.push(row * 3 + col);
+        } else {
+            player2Moves.push(row * 3 + col);
+        }
+
+        System.out.println("Bot has made its move at row " + (row + 1) + ", column " + (col + 1) + ".");
+    }
+
+
+
 
     private static boolean isBoardFull() {
         for (int[] row : board) {
@@ -309,24 +547,6 @@ public class WildTicTacToe {
             }
         }
         return true;
-    }
-
-    static class Move implements Comparable<Move> {
-        int row, col, score;
-
-        public Move(int score) {
-            this.score = score;
-        }
-
-        public Move(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-
-        @Override
-        public int compareTo(Move otherMove) {
-            return Integer.compare(score, otherMove.score);
-        }
     }
 
     private static void undoMove() {
@@ -342,5 +562,8 @@ public class WildTicTacToe {
             board[row][col] = 0;
         }
     }
+
+
+
 
 }
