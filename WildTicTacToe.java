@@ -31,7 +31,7 @@ public class WildTicTacToe {
             isBotMode = true;
             System.out.println(player1Name + " will start as X and " + player2Name + " will start as O.");
 
-            System.out.print("Select the difficulty level for the bot (1-3): ");
+            System.out.print("Select the difficulty level for the bot (easy-1,medium-2,hard-3): ");
             difficultyLevel = scanner.nextInt();
             System.out.println(player1Name + " will start as X and the bot will start as O.");
 
@@ -46,7 +46,7 @@ public class WildTicTacToe {
         System.out.println("If you get a line of three X's or O's in a row, you win! Good luck!");
         System.out.println("Let's get started, " + player1Name + " and " + player2Name + "!");
 
-
+        int gameOutcome = -1;
 
         while (!isGameOver) {
             printBoard();
@@ -145,6 +145,17 @@ public class WildTicTacToe {
             System.out.println("The game is a draw.");
         }
 
+        // Determine the game outcome
+        gameOutcome = determineGameOutcome(player1Name, player2Name, winnerPlayer, isBotMode);
+
+        if (gameOutcome == 1) {
+            System.out.println(player1Name + " wins!");
+        } else if (gameOutcome == 0) {
+            System.out.println(isBotMode ? "Bot wins!" : player2Name + " wins!");
+        } else if (gameOutcome == -1) {
+            System.out.println("The game is a draw.");
+        }
+
         System.out.print("Do " + player1Name + " and " + (isBotMode ? "Bot" : player2Name) + " want to play again? (Y/N): ");
         String playAgain = scanner.next();
         if (playAgain.equalsIgnoreCase("Y")) {
@@ -152,6 +163,16 @@ public class WildTicTacToe {
             main(args);
         } else {
             System.out.println("Thank you for playing Wild Tic Tac Toe!");
+        }
+    }
+
+    public static int determineGameOutcome(String player1Name, String player2Name, int winnerPlayer, boolean isBotMode) {
+        if (winnerPlayer == 1) {
+            return 1; // Player 1 wins
+        } else if (winnerPlayer == 2 && isBotMode) {
+            return 0; // Bot wins
+        } else {
+            return -1; // Draw
         }
     }
 
@@ -478,8 +499,6 @@ public class WildTicTacToe {
         }
     }
 
-
-
     private static int evaluateBoard() {
         // Check rows
         for (int i = 0; i < 3; i++) {
@@ -534,9 +553,6 @@ public class WildTicTacToe {
 
         System.out.println("Bot has made its move at row " + (row + 1) + ", column " + (col + 1) + ".");
     }
-
-
-
 
     private static boolean isBoardFull() {
         for (int[] row : board) {
