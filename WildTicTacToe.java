@@ -428,7 +428,7 @@ public class WildTicTacToe {
             for (int j = 0; j < 3; j++) {
                 if (board[i][j] == 0) {
                     board[i][j] = currentPlayerMark;
-                    int score = alphaBetaPruningForMax(0, Integer.MIN_VALUE, Integer.MAX_VALUE, false, currentPlayerMark);
+                    int score = alphaBetaPruning(0, Integer.MIN_VALUE, Integer.MAX_VALUE, false, currentPlayerMark);
                     board[i][j] = 0;
 
                     if (score > bestScore) {
@@ -445,7 +445,7 @@ public class WildTicTacToe {
     }
 
 
-    private static int alphaBetaPruningForMax (int depth, int alpha, int beta, boolean isMaximizingPlayer, int currentPlayerMark) {
+    private static int alphaBetaPruning (int depth, int alpha, int beta, boolean isMaximizingPlayer, int currentPlayerMark) {
         int result = evaluateBoard();
 
         if (result != 0) {
@@ -463,7 +463,7 @@ public class WildTicTacToe {
                 for (int j = 0; j < 3; j++) {
                     if (board[i][j] == 0) {
                         board[i][j] = currentPlayerMark;
-                        int score = alphaBetaPruningForMax(depth + 1, alpha, beta, false, currentPlayerMark);
+                        int score = alphaBetaPruning(depth + 1, alpha, beta, false, currentPlayerMark);
                         board[i][j] = 0;
 
                         maxScore = Math.max(score, maxScore);
@@ -483,7 +483,7 @@ public class WildTicTacToe {
                 for (int j = 0; j < 3; j++) {
                     if (board[i][j] == 0) {
                         board[i][j] = 3 - currentPlayerMark;
-                        int score = alphaBetaPruningForMax(depth + 1, alpha, beta, true, currentPlayerMark);
+                        int score = alphaBetaPruning(depth + 1, alpha, beta, true, currentPlayerMark);
                         board[i][j] = 0;
 
                         minScore = Math.min(score, minScore);
