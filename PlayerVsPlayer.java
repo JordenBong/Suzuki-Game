@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class PlayerVsPlayer extends TicTacToe{
+public class PlayerVsPlayer {
     static ArrayList<Integer> player1Positions = new ArrayList<>();
     static ArrayList<Integer> player2Positions = new ArrayList<>();
     static Stack<int[]> moveStack = new Stack<>();
