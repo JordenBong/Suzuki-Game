@@ -1,9 +1,10 @@
 import java.util.*;
 
-public class PlayerVsEngine extends TicTacToe{
+public class PlayerVsEngine{
     static ArrayList<Integer> playerPositions = new ArrayList<>();
     static ArrayList<Integer> cpuPositions = new ArrayList<>();
     static Stack<int[]> moveStack = new Stack<>();
+    public static int status;
 
     public void display1(){
         char[][] gameBoard = {{' ', '|', ' ', '|', ' ', '|', ' ', '|', ' '},
@@ -380,10 +381,13 @@ public class PlayerVsEngine extends TicTacToe{
 
         for(List l : winning){
             if(playerPositions.containsAll(l)){
+                status = 1;
                 return "Congratulations you win! ";
             }else if(cpuPositions.containsAll(l)){
+                status = -1;
                 return "CPU win! Sorry :(";
             }else if(playerPositions.size() + cpuPositions.size() == 25){
+                status = 0;
                 return "Tie!";
             }
         }
