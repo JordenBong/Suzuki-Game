@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class EngineVsEngine extends TicTacToe{
+public class EngineVsEngine extends {
     static ArrayList<Integer> cpu1Positions = new ArrayList<>();
     static ArrayList<Integer> cpu2Positions = new ArrayList<>();
     public void display3(){
