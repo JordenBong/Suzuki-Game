@@ -11,45 +11,28 @@ public class WildTicTacToe {
     private static int winnerPlayer = 0;
     private static final Stack<Integer> player1Moves = new Stack<>();
     private static final Stack<Integer> player2Moves = new Stack<>();
+    private static final Stack<Integer> playerMoves = new Stack<>();
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
 
         gameStartInfo();
 
-        System.out.print("Enter your name, player 1: ");
+        selectMode();
 
-        String player1Name = scanner.nextLine();
-        String player2Name = "Bot";
-
-        System.out.println(player1Name + " will start as X and " + player2Name + " will start as O.");
-
-        System.out.print("Select the difficulty level for the bot (easy-1,medium-2,hard-3): ");
-        int difficultyLevel = scanner.nextInt();
-        System.out.println(player1Name + " will start as X and the bot will start as O.");
-
-        gameInstruction(player1Name, player2Name);
-
-        while (!isGameOver) {
-            playGame(true, player1Name, player2Name, difficultyLevel);
-        }
-
-        printWinnerMessage(player1Name, player2Name, true, winnerPlayer);
-
-        printGameOutcome(player1Name, player2Name, true, winnerPlayer);
-
-        playerVsPlayer(player1Name);
-
-        playAgain(player1Name, args);
+        playAgain(args);
 
     }
 
     // prints the initial instructions and information about the game.
     public static void gameStartInfo(){
+        System.out.println("-------------------------------------------------------");
+        System.out.println("-------------------------------------------------------");
         System.out.println("Welcome to Wild Tic Tac Toe!");
         System.out.println("The game is played on a 3x3 grid.");
+        System.out.println("In this game, you have to beat the Bot (in Main mode) in order to proceed your journey.");
+        System.out.println("or you can play with your friend (in Player vs Player mode).");
         System.out.println("The objective is to place three X's or O's in a row.");
-        System.out.println("You will play with Bot. After the game with Bot, you can play with another player for fun.");
+        System.out.println("-------------------------------------------------------");
     }
 
     // prints the instructions for the game.
@@ -60,11 +43,172 @@ public class WildTicTacToe {
         System.out.println("Let's get started, " + player1Name + " and " + player2Name + "!");
     }
 
+    // select the mode of the game.
+    public static void selectMode(){
+        System.out.println("-------------------------------------------------------");
+        System.out.println("Select the mode you want to play in: ");
+        System.out.println("1. Player vs Bot - Battle with the Bot (Main mode)");
+        System.out.println("2. Player vs Player - Challenge your Friends (Fun mode)");
+        System.out.print("Key in your choice (Player vs Bot - 1, Player vs Player - 2): ");
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            int mode = scanner.nextInt();
+            if (mode == 1) {
+                playerVsBot();
+            } else if (mode == 2) {
+                playerVsPlayer();
+            } else {
+                System.out.println("Invalid mode selection. Please try again.");
+                selectMode();
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Please enter a valid choice (1 or 2).");
+            selectMode();
+        }
+    }
+
+    // plays the game in player vs bot mode
+    public static void playerVsBot(){
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter your name, player 1: ");
+        String player1Name = scanner.nextLine();
+        String player2Name = "Bot";
+
+        System.out.println(player1Name + " will start as X/O and " + player2Name + " will start as O/X.");
+
+        System.out.print("Select the difficulty level for the bot (easy-1,medium-2,hard-3): ");
+        int difficultyLevel = scanner.nextInt();
+
+
+        gameInstruction(player1Name, player2Name);
+
+        while (!isGameOver) {
+            playGamePvB(true, player1Name, player2Name, difficultyLevel);
+        }
+
+        printWinnerPvB(player1Name, player2Name, true, winnerPlayer);
+
+        printGameOutcome(player1Name, player2Name, true, winnerPlayer);
+
+    }
+
+    // play against another human player for fun
+    public static void playerVsPlayer(){
+        Scanner scanner = new Scanner(System.in);
+
+        // Reset the game and play in Player vs. Player mode
+        resetGame();
+
+        System.out.print("Enter your name, player 1: ");
+        String player1Name = scanner.nextLine();
+        System.out.print("Enter your name, player 2: ");
+        String player2Name = scanner.next();
+        System.out.println(player1Name + " will start as X/O and " + player2Name + " will start as O/X.");
+
+        gameInstruction(player1Name, player2Name);
+
+        while (!isGameOver) {
+            int difficultyLevel=0;
+            playGamePvP(false, player1Name, player2Name, difficultyLevel);
+        }
+
+        printWinnerPvP(player1Name, player2Name, false, winnerPlayer);
+
+        printGameOutcome(player1Name, player2Name, false, winnerPlayer);
+    }
+
     /*
     handles the gameplay logic. It alternates between players, takes input for moves, and updates the game board accordingly.
-    If playing against a bot, it waits for the bot's move. It also checks for a winner or a draw after each move.
+    If playing against a bot, it waits for the bot move. It also checks for a winner or a draw after each move.
      */
-    public static void playGame(boolean isBotMode, String player1Name, String player2Name, int difficultyLevel) {
+    public static void playGamePvB(boolean isBotMode, String player1Name, String player2Name, int difficultyLevel) {
+
+
+        printBoard();
+
+        String playerName;
+        if (currentPlayer == 1) {
+            playerName = player1Name;
+        } else {
+            playerName = isBotMode ? "Bot" : player2Name;
+        }
+
+        if (isBotMode && currentPlayer == 2) {
+            System.out.println("Bot is thinking...");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("An error occurred: " + e.getMessage());
+            }
+            makeBotMove(difficultyLevel);
+        } else {
+            int row, col;
+            boolean validMove = false;
+            do {
+                System.out.print(playerName + ", enter 'X' or 'O' to mark this square, or 'U' to undo your last move: ");
+                Scanner sc = new Scanner(System.in);
+                String mark = sc.next();
+                if (mark.equalsIgnoreCase("U") && currentPlayer == 1) {
+                    undoMovePvB();
+                    currentPlayer = currentPlayer == 1 ? 2 : 1;
+                    break;
+                }
+
+                if (!mark.equalsIgnoreCase("X") && !mark.equalsIgnoreCase("O")) {
+                    System.out.println("Invalid mark. Please enter 'X', 'O', or 'U' to undo your last move.");
+                    continue;
+                }
+
+                try {
+                    System.out.print("Enter the row number (1-3): ");
+                    row = sc.nextInt() - 1;
+
+                    System.out.print("Enter the column number (1-3): ");
+                    col = sc.nextInt() - 1;
+
+                    if (row < 0 || row > 2 || col < 0 || col > 2) {
+                        System.out.println("Invalid row or column number. Please enter a number between 1 and 3.");
+                        continue;
+                    }
+
+                    if (board[row][col] != 0) {
+                        System.out.println("Square already taken. Please choose another square.");
+                        continue;
+                    }
+                    board[row][col] = mark.equalsIgnoreCase("X") ? 1 : 2;
+
+                    playerMoves.push(row * 3 + col);
+                    validMove = true;
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a number between 1 and 3.");
+                    sc.nextLine(); // Clear the invalid input from the scanner
+                    continue;
+                }
+            } while (!validMove);
+        }
+
+        try {
+            if (checkWinner()) {
+                printBoard();
+                isGameOver = true;
+                winnerPlayer = currentPlayer; // Update the winnerPlayer variable
+            } else if (isBoardFull()) {
+                printBoard();
+                isGameOver = true;
+            } else {
+                // Switch the current player if no winner and the board is not full
+                currentPlayer = currentPlayer == 1 ? 2 : 1;
+            }
+        } catch (Exception e) {
+            // Handle any exceptions that may occur
+            System.out.println("An error occurred: " + e.getMessage());
+            isGameOver = true;
+        }
+    }
+
+    public static void playGamePvP(boolean isBotMode, String player1Name, String player2Name, int difficultyLevel) {
         printBoard();
 
         String playerName;
@@ -90,7 +234,7 @@ public class WildTicTacToe {
                 Scanner sc = new Scanner(System.in);
                 String mark = sc.next();
                 if (mark.equalsIgnoreCase("U")) {
-                    undoMove(); // Undo the last move
+                    undoMovePvP(); // Undo the last move
                     currentPlayer = currentPlayer == 1 ? 2 : 1; // Switch the current player back
                     break;
                 } else if (!mark.equalsIgnoreCase("X") && !mark.equalsIgnoreCase("O")) {
@@ -149,15 +293,39 @@ public class WildTicTacToe {
         }
     }
 
-    // prints a message declaring the winner of the game
-    public static void printWinnerMessage(String player1Name, String player2Name, boolean isBotMode, int winnerPlayer) {
+    // prints a message declaring the winner of the game and updates the scores
+    public static void printWinnerPvB(String player1Name, String player2Name, boolean isBotMode, int winnerPlayer) {
+
         if (winnerPlayer == 1) {
             System.out.println(player1Name + " wins!");
+
         } else if (winnerPlayer == 2) {
             System.out.println(isBotMode ? "Bot wins!" : player2Name + " wins!");
+
         } else {
             System.out.println("The game is a draw.");
         }
+
+    }
+
+    // prints a message declaring the winner of the game and updates the scores
+    public static void printWinnerPvP(String player1Name, String player2Name, boolean isBotMode, int winnerPlayer) {
+
+        int player1Score = 0;
+        int player2Score = 0;
+
+        if (winnerPlayer == 1) {
+            System.out.println(player1Name + " wins!");
+            player1Score++; // Increment player 1 score
+        } else if (winnerPlayer == 2) {
+            System.out.println(isBotMode ? "Bot wins!" : player2Name + " wins!");
+            player2Score++; // Increment player 2 score
+        } else {
+            System.out.println("The game is a draw.");
+        }
+
+        System.out.println(player1Name + " Score: " + player1Score);
+        System.out.println(player2Name + " Score: " + player2Score);
     }
 
     // determines the outcome of the game (win, loss, or draw) and prints an appropriate message
@@ -168,6 +336,8 @@ public class WildTicTacToe {
 
         if (gameOutcome == 1) {
             System.out.println("Congratulations, " + player1Name + "! You won the game! You can make your next move now.");
+
+
         } else if (gameOutcome == 0) {
             System.out.println("Sorry, " + player1Name + ". You lost the game. You have to back to the previous station.");
         } else if (gameOutcome == -1) {
@@ -186,41 +356,19 @@ public class WildTicTacToe {
         }
     }
 
-    // prompts the first player to play against another human player if desired
-    public static void playerVsPlayer(String player1Name){
-        System.out.print("Do " + player1Name + " want to play Player vs. Player? (Y/N): ");
-        Scanner scanner = new Scanner(System.in);
-        String playAgainstPlayer = scanner.next();
-        if (playAgainstPlayer.equalsIgnoreCase("Y")) {
-            // Reset the game and play in Player vs. Player mode
-            resetGame();
-
-            System.out.print("Enter your name, player 2: ");
-            String player2Name = scanner.next();
-            System.out.println(player1Name + " will start as X and " + player2Name + " will start as O.");
-
-            System.out.println("You will take turns placing your X's or O's on the board.");
-            System.out.println("To make a move, enter the row and column numbers where you want to place your X or O.");
-            System.out.println("If you get a line of three X's or O's in a row, you win! Good luck!");
-            System.out.println("Let's get started, " + player1Name + " and " + player2Name + "!");
-
-            while (!isGameOver) {
-                int difficultyLevel=0;
-                playGame(false, player1Name, player2Name, difficultyLevel);
-            }
-            printWinnerMessage(player1Name, player2Name, false, winnerPlayer);
-
-        }
-    }
-
     // asks the first player if they want to play again with the bot
-    public static void playAgain(String player1Name, String[] args){
+    public static void playAgain(String[] args){
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Do " + player1Name + " want to play again with Bot? (Y/N): ");
+        System.out.print("Do you want to play again? (Y/N): ");
         String playAgain = scanner.next();
         if (playAgain.equalsIgnoreCase("Y")) {
+            System.out.println("--- Back to the main mode ---");
             resetGame();
             main(args);
+            /* Reset the scores
+            player1Score = 0;
+            player2Score = 0;
+            */
         } else {
             System.out.println("Thank you for playing Wild Tic Tac Toe!");
         }
@@ -407,7 +555,7 @@ public class WildTicTacToe {
             for (int j = 0; j < 3; j++) {
                 if (board[i][j] == 0) {
                     board[i][j] = currentPlayerMark;
-                    int score = minimax(9, false, currentPlayerMark);
+                    int score = minimax(0, false, currentPlayerMark);
                     board[i][j] = 0;
 
                     if (score > bestScore) {
@@ -426,8 +574,8 @@ public class WildTicTacToe {
     // Minimax algorithm
     private static int minimax(int depth, boolean isMaximizingPlayer, int currentPlayerMark) {
         int result = evaluateBoard();
-
-        if (result != 0) {
+        int MAX_DEPTH = Integer.MAX_VALUE;
+        if (result != 0 || depth == MAX_DEPTH) {
             return result;
         }
 
@@ -466,8 +614,6 @@ public class WildTicTacToe {
         return bestScore;
     }
 
-    private static final int MAX_DEPTH = 5;
-
     // Difficulty level hard - minimax with alpha-beta pruning
     private static void makeHardMove(int currentPlayerMark) {
         int bestScore = Integer.MIN_VALUE;
@@ -498,6 +644,7 @@ public class WildTicTacToe {
     // Alpha-beta pruning algorithm
     private static int alphaBetaPruning (int depth, int alpha, int beta, boolean isMaximizingPlayer, int currentPlayerMark) {
         int result = evaluateBoard();
+        int MAX_DEPTH = Integer.MAX_VALUE;
 
         if (result != 0) {
             return result * depth; // Scale the score by the depth to encourage faster wins and slower losses
@@ -552,45 +699,88 @@ public class WildTicTacToe {
 
     // Evaluate the current state of the board
     private static int evaluateBoard() {
+        int opponent = 3 - currentPlayer;
+
+        int currentPlayerScore = 0;
+        int opponentScore = 0;
+
         // Check rows
         for (int i = 0; i < 3; i++) {
-            if (board[i][0] == board[i][1] && board[i][1] == board[i][2]) {
-                if (board[i][0] == currentPlayer) {
-                    return 10; // Current player has won
-                } else if (board[i][0] == 3 - currentPlayer) {
-                    return -10; // Opponent has won
+            int currentPlayerCount = 0;
+            int opponentCount = 0;
+
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == currentPlayer) {
+                    currentPlayerCount++;
+                } else if (board[i][j] == opponent) {
+                    opponentCount++;
                 }
+            }
+
+            if (currentPlayerCount == 2 && opponentCount == 0) {
+                currentPlayerScore += 5; // Potential winning move
+            } else if (opponentCount == 2 && currentPlayerCount == 0) {
+                opponentScore += 5; // Block opponent's potential winning move
             }
         }
 
         // Check columns
-        for (int i = 0; i < 3; i++) {
-            if (board[0][i] == board[1][i] && board[1][i] == board[2][i]) {
-                if (board[0][i] == currentPlayer) {
-                    return 10; // Current player has won
-                } else if (board[0][i] == 3 - currentPlayer) {
-                    return -10; // Opponent has won
+        for (int j = 0; j < 3; j++) {
+            int currentPlayerCount = 0;
+            int opponentCount = 0;
+
+            for (int i = 0; i < 3; i++) {
+                if (board[i][j] == currentPlayer) {
+                    currentPlayerCount++;
+                } else if (board[i][j] == opponent) {
+                    opponentCount++;
                 }
+            }
+
+            if (currentPlayerCount == 2 && opponentCount == 0) {
+                currentPlayerScore += 5; // Potential winning move
+            } else if (opponentCount == 2 && currentPlayerCount == 0) {
+                opponentScore += 5; // Block opponent's potential winning move
             }
         }
 
         // Check diagonals
-        if (board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
-            if (board[0][0] == currentPlayer) {
-                return 10; // Current player has won
-            } else if (board[0][0] == 3 - currentPlayer) {
-                return -10; // Opponent has won
-            }
+        if (board[0][0] == currentPlayer && board[1][1] == currentPlayer && board[2][2] == 0) {
+            currentPlayerScore += 5; // Potential winning move
+        } else if (board[0][0] == opponent && board[1][1] == opponent && board[2][2] == 0) {
+            opponentScore += 5; // Block opponent's potential winning move
         }
-        if (board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
-            if (board[0][2] == currentPlayer) {
-                return 10; // Current player has won
-            } else if (board[0][2] == 3 - currentPlayer) {
-                return -10; // Opponent has won
+
+        if (board[0][2] == currentPlayer && board[1][1] == currentPlayer && board[2][0] == 0) {
+            currentPlayerScore += 5; // Potential winning move
+        } else if (board[0][2] == opponent && board[1][1] == opponent && board[2][0] == 0) {
+            opponentScore += 5; // Block opponent's potential winning move
+        }
+
+        // Count player pieces
+        int currentPlayerCount = 0;
+        int opponentCount = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == currentPlayer) {
+                    currentPlayerCount++;
+                } else if (board[i][j] == opponent) {
+                    opponentCount++;
+                }
             }
         }
 
-        return 0; // Game is a draw or not yet finished
+        currentPlayerScore += currentPlayerCount; // Add score based on the number of player pieces
+        opponentScore += opponentCount; // Add score based on the number of opponent pieces
+
+        // Consider the center position
+        if (board[1][1] == currentPlayer) {
+            currentPlayerScore += 3; // Occupying the center position is advantageous
+        } else if (board[1][1] == opponent) {
+            opponentScore += 3; // Opponent occupying the center position is disadvantageous
+        }
+
+        return currentPlayerScore - opponentScore; // Return the difference between player scores
     }
 
     // Make the move and the position on the board where the player wants to place their mark is passed as a parameter
@@ -620,17 +810,32 @@ public class WildTicTacToe {
     }
 
     // Undo the last move made by a player in the game
-    private static void undoMove() {
+    private static void undoMovePvP() {
         if (currentPlayer == 1 && !player1Moves.isEmpty()) {
             int lastMove = player1Moves.pop();
             int row = lastMove / 3;
             int col = lastMove % 3;
             board[row][col] = 0;
+            System.out.println("Undo successful. Last move removed.");
         } else if (currentPlayer == 2 && !player2Moves.isEmpty()) {
             int lastMove = player2Moves.pop();
             int row = lastMove / 3;
             int col = lastMove % 3;
             board[row][col] = 0;
+        } else {
+            System.out.println("You cannot undo the bot's move.");
+        }
+    }
+
+    private static void undoMovePvB() {
+        if (!playerMoves.isEmpty()) {
+            int lastMove = playerMoves.pop();
+            int row = lastMove / 3;
+            int col = lastMove % 3;
+            board[row][col] = 0; // Reset the board position
+            System.out.println("Undo successful. Last move removed.");
+        } else {
+            System.out.println("No moves to undo.");
         }
     }
 
