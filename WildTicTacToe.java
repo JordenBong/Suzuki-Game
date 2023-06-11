@@ -448,7 +448,6 @@ public class WildTicTacToe {
             case 3 -> makeHardMove(currentPlayerMark);
             default -> {
                 System.out.println("Invalid difficulty level. Bot will make a random move.");
-                makeRandomMove(currentPlayerMark);
             }
         }
     }
