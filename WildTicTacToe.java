@@ -442,8 +442,8 @@ public class WildTicTacToe {
         int currentPlayerMark = new Random().nextInt(2) + 1;
 
         switch (difficultyLevel) {
-            case 1 -> makeSmartMove(currentPlayerMark);
-            case 2 -> makeAdvancedMove(currentPlayerMark);
+            case 1 -> makeEasyMove(currentPlayerMark);
+            case 2 -> makeMediumMove(currentPlayerMark);
             case 3 -> makeHardMove(currentPlayerMark);
             default -> {
                 System.out.println("Invalid difficulty level. Bot will make a random move.");
@@ -451,99 +451,8 @@ public class WildTicTacToe {
         }
     }
 
-    private static void makeRandomMove(int currentPlayerMark) {
-        Random random = new Random();
-
-        int row, col;
-        do {
-            row = random.nextInt(3);
-            col = random.nextInt(3);
-        } while (board[row][col] != 0);
-
-        makeMove(row, col, currentPlayerMark);
-    }
-
-    // implements a strategy for the bot to find a winning move or block the opponent's winning move
-    private static void makeSmartMove(int currentPlayerMark) {
-        // Look for a winning move
-        if (findWinningMove(currentPlayerMark)) {
-            return;
-        }
-
-        // Block the opponent's winning move
-        if (findWinningMove(3 - currentPlayerMark)) {
-            return;
-        }
-
-        // Make a random move
-        makeRandomMove(currentPlayerMark);
-    }
-
-    // Difficulty level easy checks if there is a winning move for a given player by examining rows, columns, and diagonals
-    private static boolean findWinningMove(int player) {
-        // Check rows
-        for (int i = 0; i < 3; i++) {
-            if (board[i][0] == player && board[i][1] == player && board[i][2] == 0) {
-                makeMove(i, 2, player);
-                return true;
-            }
-            if (board[i][0] == player && board[i][2] == player && board[i][1] == 0) {
-                makeMove(i, 1, player);
-                return true;
-            }
-            if (board[i][1] == player && board[i][2] == player && board[i][0] == 0) {
-                makeMove(i, 0, player);
-                return true;
-            }
-        }
-
-        // Check columns
-        for (int i = 0; i < 3; i++) {
-            if (board[0][i] == player && board[1][i] == player && board[2][i] == 0) {
-                makeMove(2, i, player);
-                return true;
-            }
-            if (board[0][i] == player && board[2][i] == player && board[1][i] == 0) {
-                makeMove(1, i, player);
-                return true;
-            }
-            if (board[1][i] == player && board[2][i] == player && board[0][i] == 0) {
-                makeMove(0, i, player);
-                return true;
-            }
-        }
-
-        // Check diagonals
-        if (board[0][0] == player && board[1][1] == player && board[2][2] == 0) {
-            makeMove(2, 2, player);
-            return true;
-        }
-        if (board[0][0] == player && board[2][2] == player && board[1][1] == 0) {
-            makeMove(1, 1, player);
-            return true;
-        }
-        if (board[1][1] == player && board[2][2] == player && board[0][0] == 0) {
-            makeMove(0, 0, player);
-            return true;
-        }
-        if (board[0][2] == player && board[1][1] == player && board[2][0] == 0) {
-            makeMove(2, 0, player);
-            return true;
-        }
-        if (board[0][2] == player && board[2][0] == player && board[1][1] == 0) {
-            makeMove(1, 1, player);
-            return true;
-        }
-        if (board[1][1] == player && board[2][0] == player && board[0][2] == 0) {
-            makeMove(0, 2, player);
-            return true;
-        }
-
-        return false;
-    }
-
-    // Difficulty level medium
-    private static void makeAdvancedMove(int currentPlayerMark) {
+    // Difficulty level easy - minimax algorithm
+    private static void makeEasyMove(int currentPlayerMark) {
         int bestScore = Integer.MIN_VALUE+1;
         int bestRow = -1;
         int bestCol = -1;
@@ -612,8 +521,8 @@ public class WildTicTacToe {
         return bestScore;
     }
 
-    // Difficulty level hard - minimax with alpha-beta pruning
-    private static void makeHardMove(int currentPlayerMark) {
+    // Difficulty level medium - minimax with alpha-beta pruning
+    private static void makeMediumMove(int currentPlayerMark) {
         int bestScore = Integer.MIN_VALUE;
         int bestRow = -1;
         int bestCol = -1;
@@ -781,6 +690,96 @@ public class WildTicTacToe {
         return currentPlayerScore - opponentScore; // Return the difference between player scores
     }
 
+    // Difficulty level hard - implements a strategy for the bot to find a winning move or block the opponent's winning move
+    private static void makeHardMove(int currentPlayerMark) {
+        // Look for a winning move
+        if (findWinningMove(currentPlayerMark)) {
+            return;
+        }
+
+        // Block the opponent's winning move
+        if (findWinningMove(3 - currentPlayerMark)) {
+            return;
+        }
+
+        makeAnyAvailableMove(currentPlayerMark);
+    }
+
+    // checks if there is a winning move for a given player by examining rows, columns, and diagonals
+    private static boolean findWinningMove(int player) {
+        // Check rows
+        for (int i = 0; i < 3; i++) {
+            if (board[i][0] == player && board[i][1] == player && board[i][2] == 0) {
+                makeMove(i, 2, player);
+                return true;
+            }
+            if (board[i][0] == player && board[i][2] == player && board[i][1] == 0) {
+                makeMove(i, 1, player);
+                return true;
+            }
+            if (board[i][1] == player && board[i][2] == player && board[i][0] == 0) {
+                makeMove(i, 0, player);
+                return true;
+            }
+        }
+
+        // Check columns
+        for (int i = 0; i < 3; i++) {
+            if (board[0][i] == player && board[1][i] == player && board[2][i] == 0) {
+                makeMove(2, i, player);
+                return true;
+            }
+            if (board[0][i] == player && board[2][i] == player && board[1][i] == 0) {
+                makeMove(1, i, player);
+                return true;
+            }
+            if (board[1][i] == player && board[2][i] == player && board[0][i] == 0) {
+                makeMove(0, i, player);
+                return true;
+            }
+        }
+
+        // Check diagonals
+        if (board[0][0] == player && board[1][1] == player && board[2][2] == 0) {
+            makeMove(2, 2, player);
+            return true;
+        }
+        if (board[0][0] == player && board[2][2] == player && board[1][1] == 0) {
+            makeMove(1, 1, player);
+            return true;
+        }
+        if (board[1][1] == player && board[2][2] == player && board[0][0] == 0) {
+            makeMove(0, 0, player);
+            return true;
+        }
+        if (board[0][2] == player && board[1][1] == player && board[2][0] == 0) {
+            makeMove(2, 0, player);
+            return true;
+        }
+        if (board[0][2] == player && board[2][0] == player && board[1][1] == 0) {
+            makeMove(1, 1, player);
+            return true;
+        }
+        if (board[1][1] == player && board[2][0] == player && board[0][2] == 0) {
+            makeMove(0, 2, player);
+            return true;
+        }
+
+        return false;
+    }
+
+    // Makes a move to any available empty cell on the board
+    private static void makeAnyAvailableMove(int currentPlayerMark) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == 0) {
+                    makeMove(i, j, currentPlayerMark);
+                    return;
+                }
+            }
+        }
+    }
+    
     // Make the move and the position on the board where the player wants to place their mark is passed as a parameter
     private static void makeMove(int row, int col, int currentPlayerMark) {
         // Set the current player's mark on the board
