@@ -1,6 +1,8 @@
 package cli;
 
 
+
+
 import java.util.*;
 
 
@@ -13,13 +15,12 @@ public class WildTicTacToe {
     private static final Stack<Integer> player2Moves = new Stack<>();
     private static final Stack<Integer> playerMoves = new Stack<>();
 
+
     public static void main(String[] args) {
 
         gameStartInfo();
 
         selectMode();
-
-        playAgain(args);
 
     }
 
@@ -80,8 +81,8 @@ public class WildTicTacToe {
 
         System.out.print("Select the difficulty level for the bot (easy-1,medium-2,hard-3): ");
         int difficultyLevel = scanner.nextInt();
-
-
+        System.out.println("-------------------------------------------");
+        System.out.println("-------------------------------------------");
         gameInstruction(player1Name, player2Name);
 
         while (!isGameOver) {
@@ -92,6 +93,7 @@ public class WildTicTacToe {
 
         printGameOutcome(player1Name, player2Name, true, winnerPlayer);
 
+        System.out.println("Thank you for playing Wild Tic Tac Toe!");
     }
 
     // play against another human player for fun
@@ -117,6 +119,8 @@ public class WildTicTacToe {
         printWinnerPvP(player1Name, player2Name, false, winnerPlayer);
 
         printGameOutcome(player1Name, player2Name, false, winnerPlayer);
+
+        playAgain();
     }
 
     /*
@@ -124,8 +128,6 @@ public class WildTicTacToe {
     If playing against a bot, it waits for the bot move. It also checks for a winner or a draw after each move.
      */
     public static void playGamePvB(boolean isBotMode, String player1Name, String player2Name, int difficultyLevel) {
-
-
         printBoard();
 
         String playerName;
@@ -357,20 +359,17 @@ public class WildTicTacToe {
     }
 
     // asks the first player if they want to play again with the bot
-    public static void playAgain(String[] args){
+    public static void playAgain() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Do you want to play again? (Y/N): ");
         String playAgain = scanner.next();
         if (playAgain.equalsIgnoreCase("Y")) {
             System.out.println("--- Back to the main mode ---");
             resetGame();
-            main(args);
-            /* Reset the scores
-            player1Score = 0;
-            player2Score = 0;
-            */
+            selectMode();
         } else {
-            System.out.println("Thank you for playing Wild Tic Tac Toe!");
+            System.out.println("Thanks for playing!");
+            System.exit(0);
         }
     }
 
@@ -438,7 +437,7 @@ public class WildTicTacToe {
         player2Moves.clear();
     }
 
-    // handles the bot's move based on the selected difficulty level. It randomly chooses a move if the difficulty level is invalid.
+    // handles the bot move based on the selected difficulty level. It randomly chooses a move if the difficulty level is invalid.
     private static void makeBotMove(int difficultyLevel) {
         int currentPlayerMark = new Random().nextInt(2) + 1;
 
