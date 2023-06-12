@@ -96,7 +96,7 @@ public class WildTicTacToe {
 
         printGameOutcome(player1Name, true, winnerPlayer);
 
-        System.out.println("Thank you for playing Wild Tic Tac Toe!");
+
     }
 
     /*
@@ -207,10 +207,15 @@ public class WildTicTacToe {
 
         if (gameOutcome == 1) {
             System.out.println("Congratulations, " + player1Name + "! You won the game! You can make your next move now.");
+            System.out.println("Thank you for playing Wild Tic Tac Toe!");
         } else if (gameOutcome == -1) {
             System.out.println("Sorry, " + player1Name + ". You lost the game. You have to back to the previous station.");
+            System.out.println("Thank you for playing Wild Tic Tac Toe!");
         } else if (gameOutcome == 0) {
             System.out.println("Better luck next time!");
+            System.out.println("--- Back to the main mode ---");
+            resetGame();
+            selectMode();
         }
     }
 
