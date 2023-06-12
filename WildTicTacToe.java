@@ -14,7 +14,7 @@ public class WildTicTacToe {
     private static final Stack<Integer> player1Moves = new Stack<>();
     private static final Stack<Integer> player2Moves = new Stack<>();
     private static final Stack<Integer> playerMoves = new Stack<>();
-
+    private static int gameOutcome;
 
     public static void main(String[] args) {
 
@@ -58,7 +58,7 @@ public class WildTicTacToe {
             if (mode == 1) {
                 playerVsBot();
             } else if (mode == 2) {
-                playerVsPlayer();
+                enterNamesAndStartPvP();
             } else {
                 System.out.println("Invalid mode selection. Please try again.");
                 selectMode();
@@ -68,6 +68,9 @@ public class WildTicTacToe {
             selectMode();
         }
     }
+
+
+    // Player vs Bot mode
 
     // plays the game in player vs bot mode
     public static void playerVsBot(){
@@ -91,42 +94,15 @@ public class WildTicTacToe {
 
         printWinnerPvB(player1Name, player2Name, true, winnerPlayer);
 
-        printGameOutcome(player1Name, player2Name, true, winnerPlayer);
+        printGameOutcome(player1Name, true, winnerPlayer);
 
         System.out.println("Thank you for playing Wild Tic Tac Toe!");
     }
 
-    // play against another human player for fun
-    public static void playerVsPlayer(){
-        Scanner scanner = new Scanner(System.in);
-
-        // Reset the game and play in Player vs. Player mode
-        resetGame();
-
-        System.out.print("Enter your name, player 1: ");
-        String player1Name = scanner.nextLine();
-        System.out.print("Enter your name, player 2: ");
-        String player2Name = scanner.next();
-        System.out.println(player1Name + " will start as X/O and " + player2Name + " will start as O/X.");
-
-        gameInstruction(player1Name, player2Name);
-
-        while (!isGameOver) {
-            int difficultyLevel=0;
-            playGamePvP(false, player1Name, player2Name, difficultyLevel);
-        }
-
-        printWinnerPvP(player1Name, player2Name, false, winnerPlayer);
-
-        printGameOutcome(player1Name, player2Name, false, winnerPlayer);
-
-        playAgain();
-    }
-
     /*
-    handles the gameplay logic. It alternates between players, takes input for moves, and updates the game board accordingly.
-    If playing against a bot, it waits for the bot move. It also checks for a winner or a draw after each move.
-     */
+        handles the gameplay logic. It alternates between players, takes input for moves, and updates the game board accordingly.
+        If playing against a bot, it waits for the bot move. It also checks for a winner or a draw after each move.
+         */
     public static void playGamePvB(boolean isBotMode, String player1Name, String player2Name, int difficultyLevel) {
         printBoard();
 
@@ -186,7 +162,6 @@ public class WildTicTacToe {
                 } catch (InputMismatchException e) {
                     System.out.println("Invalid input. Please enter a number between 1 and 3.");
                     sc.nextLine(); // Clear the invalid input from the scanner
-                    continue;
                 }
             } while (!validMove);
         }
@@ -208,6 +183,87 @@ public class WildTicTacToe {
             System.out.println("An error occurred: " + e.getMessage());
             isGameOver = true;
         }
+    }
+
+    // prints a message declaring the winner of the game and updates the scores
+    public static void printWinnerPvB(String player1Name, String player2Name, boolean isBotMode, int winnerPlayer) {
+        if (winnerPlayer == 1) {
+            System.out.println(player1Name + " wins!");
+
+        } else if (winnerPlayer == 2) {
+            System.out.println(isBotMode ? "Bot wins!" : player2Name + " wins!");
+
+        } else {
+            System.out.println("The game is a draw.");
+        }
+
+    }
+
+    // determines the outcome of the game (win, loss, or draw) and prints an appropriate message
+    public static void printGameOutcome(String player1Name, boolean isBotMode, int winnerPlayer){
+        int gameOutcome;
+        // Determine the game outcome
+        gameOutcome = determineGameOutcome(isBotMode, winnerPlayer);
+
+        if (gameOutcome == 1) {
+            System.out.println("Congratulations, " + player1Name + "! You won the game! You can make your next move now.");
+        } else if (gameOutcome == -1) {
+            System.out.println("Sorry, " + player1Name + ". You lost the game. You have to back to the previous station.");
+        } else if (gameOutcome == 0) {
+            System.out.println("Better luck next time!");
+        }
+    }
+
+    // determine the game outcome based on the winner player and the game mode
+    public static int determineGameOutcome(boolean isBotMode, int winnerPlayer) {
+        if (winnerPlayer == 1) {
+            gameOutcome = 1; // Player 1 wins
+        } else if (winnerPlayer == 2 && isBotMode) {
+            gameOutcome = -1; // Bot wins
+        } else {
+            gameOutcome = 0; // Draw
+        }
+        return gameOutcome;
+    }
+
+    // Getter method to retrieve the winner player
+    public static int getWinnerPlayer() {
+        return gameOutcome;
+    }
+
+    // Player vs Player mode
+
+    // Prompts the players to enter their names and start game.
+    public static void enterNamesAndStartPvP() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("-------------------------------------------");
+        System.out.print("Enter your name, player 1: ");
+        String player1Name = scanner.nextLine();
+        System.out.print("Enter your name, player 2: ");
+        String player2Name = scanner.nextLine();
+        System.out.println(player1Name + " will start as X/O and " + player2Name + " will start as O/X.");
+        System.out.println("-------------------------------------------");
+        gameInstruction(player1Name, player2Name);
+        playerVsPlayer(player1Name, player2Name);
+    }
+
+    // play against another human player for fun
+    public static void playerVsPlayer(String player1Name, String player2Name){
+
+        // Reset the game and play in Player vs. Player mode
+        resetGame();
+
+        while (!isGameOver) {
+            int difficultyLevel=0;
+            playGamePvP(false, player1Name, player2Name, difficultyLevel);
+
+        }
+
+        printWinnerPvP(player1Name, player2Name, false, winnerPlayer);
+
+        playAgain(player1Name, player2Name);
+
+
     }
 
     public static void playGamePvP(boolean isBotMode, String player1Name, String player2Name, int difficultyLevel) {
@@ -271,7 +327,6 @@ public class WildTicTacToe {
                 } catch (InputMismatchException e) {
                     System.out.println("Invalid input. Please enter a number between 1 and 3.");
                     sc.nextLine(); // Clear the invalid input from the scanner
-                    continue;
                 }
             } while (!validMove);
         }
@@ -296,21 +351,6 @@ public class WildTicTacToe {
     }
 
     // prints a message declaring the winner of the game and updates the scores
-    public static void printWinnerPvB(String player1Name, String player2Name, boolean isBotMode, int winnerPlayer) {
-
-        if (winnerPlayer == 1) {
-            System.out.println(player1Name + " wins!");
-
-        } else if (winnerPlayer == 2) {
-            System.out.println(isBotMode ? "Bot wins!" : player2Name + " wins!");
-
-        } else {
-            System.out.println("The game is a draw.");
-        }
-
-    }
-
-    // prints a message declaring the winner of the game and updates the scores
     public static void printWinnerPvP(String player1Name, String player2Name, boolean isBotMode, int winnerPlayer) {
 
         int player1Score = 0;
@@ -330,46 +370,17 @@ public class WildTicTacToe {
         System.out.println(player2Name + " Score: " + player2Score);
     }
 
-    // determines the outcome of the game (win, loss, or draw) and prints an appropriate message
-    public static void printGameOutcome(String player1Name, String player2Name, boolean isBotMode, int winnerPlayer){
-        int gameOutcome;
-        // Determine the game outcome
-        gameOutcome = determineGameOutcome(isBotMode, winnerPlayer);
-
-        if (gameOutcome == 1) {
-            System.out.println("Congratulations, " + player1Name + "! You won the game! You can make your next move now.");
-
-
-        } else if (gameOutcome == 0) {
-            System.out.println("Sorry, " + player1Name + ". You lost the game. You have to back to the previous station.");
-        } else if (gameOutcome == -1) {
-            System.out.println("Better luck next time!");
-        }
-    }
-
-    // determine the game outcome based on the winner player and the game mode
-    public static int determineGameOutcome(boolean isBotMode, int winnerPlayer) {
-        if (winnerPlayer == 1) {
-            return 1; // Player 1 wins
-        } else if (winnerPlayer == 2 && isBotMode) {
-            return 0; // Bot wins
-        } else {
-            return -1; // Draw
-        }
-    }
-
     // asks the first player if they want to play again with the bot
-    public static void playAgain() {
+    public static void playAgain(String player1Name, String player2Name) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Do you want to play again? (Y/N): ");
         String playAgain = scanner.next();
         if (playAgain.equalsIgnoreCase("Y")) {
+            playerVsPlayer(player1Name, player2Name);
+        } else {
             System.out.println("--- Back to the main mode ---");
             resetGame();
             selectMode();
-        } else {
-            System.out.println("Thanks for playing!");
-            System.exit(0);
         }
     }
 
@@ -445,9 +456,7 @@ public class WildTicTacToe {
             case 1 -> makeEasyMove(currentPlayerMark);
             case 2 -> makeMediumMove(currentPlayerMark);
             case 3 -> makeHardMove(currentPlayerMark);
-            default -> {
-                System.out.println("Invalid difficulty level. Bot will make a random move.");
-            }
+            default -> System.out.println("Invalid difficulty level. Bot will make a random move.");
         }
     }
 
@@ -779,7 +788,7 @@ public class WildTicTacToe {
             }
         }
     }
-    
+
     // Make the move and the position on the board where the player wants to place their mark is passed as a parameter
     private static void makeMove(int row, int col, int currentPlayerMark) {
         // Set the current player's mark on the board
