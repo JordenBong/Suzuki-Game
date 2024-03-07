@@ -1,4 +1,4 @@
-# WIA1002 Data Structure Group Assignment 2023/2024 📱
+# WIA1002 Data Structure Group Assignment 2023/2024 
 ## Bomberman GUI with Tic-Tac-Toe Challenge
 
 ### Functionality
