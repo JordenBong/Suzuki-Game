@@ -7,4 +7,4 @@ Users have to select a path to advance in the map, with stations that have conso
   
 ### 📦 UI  : screenshot of home page of the application
 ![Below is a screenshot of the home page of the application.
-](https://github.com/kahchun-haha/PM-MAD-Assignment/blob/main/homePage.png)
+](https://github.com/JordenBong/Suzuki-Game/blob/main/gui.png)
