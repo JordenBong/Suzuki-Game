@@ -2,6 +2,8 @@
 ## Bomberman GUI with Tic-Tac-Toe Challenge
 
 ### Usage
+Users have to select a path to advance in the map, with stations that have console-based tic-tac-toe challenge. Users must win against computer engine to proceed next step. Losing the challenge would result in the user being jumped back to the previous position before saved.
+
   
 ### 📦 UI  : screenshot of home page of the application
 ![Below is a screenshot of the home page of the application.
