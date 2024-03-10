@@ -1,6 +1,6 @@
 # WIA1002 Data Structure Group Assignment 2023/2024 
 ## Bomberman GUI with Tic-Tac-Toe Challenge
-This project is developed for the Data Structure course. In this project, we have implemented algorithms such as bread-first search and depth-first search to find all possible paths and the shortest path in the maze. Stack and queue data structures have been used extensively during the development.
+This project is developed for the Data Structure course. In this project, we have implemented algorithms such as breadth-first search and depth-first search to find all possible paths and the shortest path in the maze. Stack and queue data structures have been used extensively during the development.
 
 ### Usage
 Users have to select a path to advance in the map, with stations that have console-based tic-tac-toe challenge. Users must win against computer engine to proceed next step. Losing the challenge would result in the user being jumped back to the previous position before saved.
